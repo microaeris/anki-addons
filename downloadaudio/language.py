@@ -82,6 +82,10 @@ def language_code_from_editor(note, card_edit):
     * If it is in add card, we look at the deck chooser.
     * If something goes wrong, we return the default language code.
     """
+    if not card_edit:
+        # Batch downloading, so no card was selected
+        return default_audio_language_code
+
     try:
         return language_code_from_tags(note)
     except ValueError:

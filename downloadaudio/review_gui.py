@@ -34,7 +34,7 @@ from download_entry import Action
 icons_dir = os.path.join(mw.pm.addonFolder(), 'downloadaudio', 'icons')
 
 
-def review_entries(note, retrieved_data, hide_text):
+def review_entries(note, retrieved_data, hide_text, no_manual_review=False):
     u"""
     Show a dialog box where the user decides what to do.
 
@@ -44,7 +44,10 @@ def review_entries(note, retrieved_data, hide_text):
     """
     if not note or not retrieved_data:
         raise ValueError('Nothing downloaded')
-    review_files = ReviewFiles(note, retrieved_data, hide_text)
+    if no_manual_review:
+        review_files = None # FIXME
+    else:
+        review_files = ReviewFiles(note, retrieved_data, hide_text)
     if not review_files.exec_():
         raise RuntimeError('User cancel')
     # Go through the list and set the Action.

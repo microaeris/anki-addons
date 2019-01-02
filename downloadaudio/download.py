@@ -47,6 +47,8 @@ from language import language_code_from_card, language_code_from_editor
 from review_gui import review_entries
 from update_gui import update_data
 
+import batch_download_gui   # should be able to delete this
+
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QMenu
 
@@ -58,8 +60,19 @@ DOWNLOAD_BATCH_SHORTCUT = "Ctrl+q"  # WIP
 # Place were we keep our megaphone icon.
 icons_dir = os.path.join(mw.pm.addonFolder(), 'downloadaudio', 'icons')
 
+def tmp_print(s):
+    f = open(r'C:\Users\Jordan\MYFILE.txt', 'w+')
+    f.write(str(s) + "\n")
+    f.close()
 
-def do_download(note, field_data_list, language, hide_text=False):
+def do_batch_download(note_ids):
+   for note_id in note_ids:
+        note = mw.col.getNote(note_id)
+        download_for_note(ask_user=False, note=note)
+        # tmp_print(note)
+
+
+def do_download(note, field_data_list, language, hide_text=False, no_manual_review=False):
     """
     Download audio data.
 
@@ -92,7 +105,7 @@ def do_download(note, field_data_list, language, hide_text=False):
         # Do the processing before the reviewing now.
         entry.process()
     try:
-        retrieved_entries = review_entries(note, retrieved_entries, hide_text)
+        retrieved_entries = review_entries(note, retrieved_entries, hide_text, no_manual_review)
         # Now just the dialog, which sets the fields in the entries
     except ValueError as ve:
         tooltip(str(ve))

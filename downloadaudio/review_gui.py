@@ -40,10 +40,6 @@ PREFERRED_USERNAME = 'strawberrybrown'
 
 
 def auto_select_entry(note, retrieved_data):
-    print("these are the extras")
-    print(retrieved_data[0].extras)
-    print(retrieved_data)
-
     sorted_entries = []
     cur_idx = 0
     for entry in retrieved_data:

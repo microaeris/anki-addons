@@ -77,18 +77,10 @@ class DownloadEntry(object):
         * Add it to the note if that’s what we want.
         * Delete it if we want just delete or blacklist it.
         * Blacklist the hash if that’s what we want."""
-        print("Inside dispatch")
-        print("action = " + str(self.action))
-
         if self.action == Action.Add or self.action == Action.Keep:
             media_fn = unmunge_to_mediafile(self)
             if self.action == Action.Add:
-                print("this is the audio_field_name in dispatch:")
-                print(self.audio_field_name)
-                print(note.fields)
                 note[self.audio_field_name] += '[sound:' + media_fn + ']'
-                print(note.fields)
-                print("Just added " + media_fn)
         if self.action == Action.Delete or self.action == Action.Blacklist:
             os.remove(self.file_path)
         if self.action == Action.Blacklist:

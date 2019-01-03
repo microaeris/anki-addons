@@ -61,17 +61,19 @@ DOWNLOAD_BATCH_SHORTCUT = "Ctrl+q"  # WIP
 icons_dir = os.path.join(mw.pm.addonFolder(), 'downloadaudio', 'icons')
 
 
-def tmp_print(s):
-    f = open(r'C:\Users\Jordan\MYFILE.txt', 'w+')
-    f.write(str(s) + "\n")
-    f.close()
-
-
-def do_batch_download(note_ids):
+def do_batch_download(note_ids, browser):
+    mw = browser.mw
+    mw.checkpoint("batch edit")
+    mw.progress.start()
+    browser.model.beginReset()
     for note_id in note_ids:
         note = mw.col.getNote(note_id)
         download_for_note(ask_user=False, note=note, no_manual_review=True)
-        # tmp_print(note)
+    browser.model.endReset()
+    mw.requireReset()
+    mw.progress.finish()
+    mw.reset()
+    tooltip("<b>Updated</b> {0} notes.".format(len(note_ids)), parent=browser)
 
 
 def do_download(note, field_data_list, language, hide_text=False, no_manual_review=False):
@@ -119,34 +121,22 @@ def do_download(note, field_data_list, language, hide_text=False, no_manual_revi
             raise
     for entry in retrieved_entries:
         entry.dispatch(note)
-    print(note.fields)
-    print("We got here 1")
-    print(retrieved_entries)
     if any(entry.action == Action.Add for entry in retrieved_entries):
         note.flush()
-        print("We just flushed")
-
-        # if no_manual_review: # TODO rename this variable
-        #     # Batch downloading; add the field here
-
-        #     return
 
         # We have to do different things here, for download during
         # review, we should reload the card and replay. When we are in
         # the add dialog, we do a field update there.
         rnote = None
         try:
-            print("We got here 2")
             rnote = mw.reviewer.card.note()
         except AttributeError:
             # Could not get the note of the reviewer's card. Probably
             # not reviewing at all.
-            print("We got here 3")
             return
         if note == rnote:
             # The note we have is the one we were reviewing, so,
             # reload and replay
-            print("We got here 4")
             mw.reviewer.card.load()
             mw.reviewer.replayAudio()
 

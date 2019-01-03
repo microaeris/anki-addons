@@ -36,7 +36,7 @@ class BatchEditDialog(QDialog):
         top_hbox.addWidget(tlabel)
         top_hbox.insertStretch(1, stretch=1)
         top_hbox.addWidget(image_btn)
-        
+
         self.tedit = QPlainTextEdit()
         self.tedit.setTabChangesFocus(True)
 
@@ -50,11 +50,11 @@ class BatchEditDialog(QDialog):
         f_hbox.setAlignment(Qt.AlignLeft)
 
         button_box = QDialogButtonBox(Qt.Horizontal, self)
-        adda_btn = button_box.addButton("Add &after", 
+        adda_btn = button_box.addButton("Add &after",
             QDialogButtonBox.ActionRole)
-        addb_btn = button_box.addButton("Add &before", 
+        addb_btn = button_box.addButton("Add &before",
             QDialogButtonBox.ActionRole)
-        replace_btn = button_box.addButton("&Replace", 
+        replace_btn = button_box.addButton("&Replace",
             QDialogButtonBox.ActionRole)
         close_btn = button_box.addButton("&Cancel",
             QDialogButtonBox.RejectRole)
@@ -69,7 +69,7 @@ class BatchEditDialog(QDialog):
         self.cb_html = QCheckBox(self)
         self.cb_html.setText("Insert as HTML")
         self.cb_html.setChecked(False)
-        s = QShortcut(QKeySequence(_("Alt+H")), 
+        s = QShortcut(QKeySequence(_("Alt+H")),
             self, activated=lambda: self.cb_html.setChecked(True))
 
 
@@ -131,7 +131,7 @@ class BatchEditDialog(QDialog):
         if os.stat(image_path).st_size == 0:
             return False
         return unicode(image_path)
-            
+
     def onConfirm(self, mode):
         browser = self.browser
         nids = self.nids
@@ -145,7 +145,7 @@ class BatchEditDialog(QDialog):
                 return
         batchEditNotes(browser, mode, nids, fld, text, isHtml=isHtml)
         self.close()
-        
+
 
 def batchEditNotes(browser, mode, nids, fld, html, isHtml=False):
     if not isHtml:
@@ -190,7 +190,7 @@ def onBatchEdit(browser):
     if not nids:
         tooltip("No cards selected.")
         return
-    download.do_batch_download(nids)
+    download.do_batch_download(nids, browser)
 
     # original source here:
     """

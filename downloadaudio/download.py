@@ -60,15 +60,17 @@ DOWNLOAD_BATCH_SHORTCUT = "Ctrl+q"  # WIP
 # Place were we keep our megaphone icon.
 icons_dir = os.path.join(mw.pm.addonFolder(), 'downloadaudio', 'icons')
 
+
 def tmp_print(s):
     f = open(r'C:\Users\Jordan\MYFILE.txt', 'w+')
     f.write(str(s) + "\n")
     f.close()
 
+
 def do_batch_download(note_ids):
-   for note_id in note_ids:
+    for note_id in note_ids:
         note = mw.col.getNote(note_id)
-        download_for_note(ask_user=False, note=note)
+        download_for_note(ask_user=False, note=note, no_manual_review=True)
         # tmp_print(note)
 
 
@@ -117,21 +119,34 @@ def do_download(note, field_data_list, language, hide_text=False, no_manual_revi
             raise
     for entry in retrieved_entries:
         entry.dispatch(note)
+    print(note.fields)
+    print("We got here 1")
+    print(retrieved_entries)
     if any(entry.action == Action.Add for entry in retrieved_entries):
         note.flush()
+        print("We just flushed")
+
+        # if no_manual_review: # TODO rename this variable
+        #     # Batch downloading; add the field here
+
+        #     return
+
         # We have to do different things here, for download during
         # review, we should reload the card and replay. When we are in
         # the add dialog, we do a field update there.
         rnote = None
         try:
+            print("We got here 2")
             rnote = mw.reviewer.card.note()
         except AttributeError:
             # Could not get the note of the reviewer's card. Probably
             # not reviewing at all.
+            print("We got here 3")
             return
         if note == rnote:
             # The note we have is the one we were reviewing, so,
             # reload and replay
+            print("We got here 4")
             mw.reviewer.card.load()
             mw.reviewer.replayAudio()
 
@@ -152,7 +167,7 @@ def download_for_side():
         note, field_data, language_code_from_card(card), hide_text=True)
 
 
-def download_for_note(ask_user=False, note=None, editor=None):
+def download_for_note(ask_user=False, note=None, editor=None, no_manual_review=False):
     """
     Download audio for all fields.
 
@@ -186,7 +201,7 @@ def download_for_note(ask_user=False, note=None, editor=None):
             else:
                 # Don't know how to handle this after all
                 raise
-    do_download(note, field_data, language_code)
+    do_download(note, field_data, language_code, hide_text=False, no_manual_review=no_manual_review)
 
 
 def download_manual():

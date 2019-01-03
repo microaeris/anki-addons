@@ -104,7 +104,7 @@ class JapanesepodDownloader(AudioDownloader):
         if kana:
             entry.kana = kana
         if extra_extras:
-            extras =  copy(self.extras)
+            extras = copy(self.extras)
             for key in extra_extras:
                 extras[key] = extra_extras[key]
             entry.extras = extras

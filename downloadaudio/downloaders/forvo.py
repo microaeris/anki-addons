@@ -12,7 +12,6 @@ Download pronunciations from Forvo.
 
 import os
 import urllib
-from pathlib import Path
 
 try:
     import simplejson as json
@@ -22,10 +21,7 @@ except ImportError:
 from download_entry import DownloadEntry
 from downloader import AudioDownloader
 
-# When downloading Japanese audio, set a preference for audio from
-# a user called `strawberrybrown`. She has uploaded 23k+ recordings
-# and speaks with a standard Japanese accent.
-PREFERRED_USERNAME = 'strawberrybrown'  # WIP
+
 KEY_FILE_NAME = 'forvokey.py'
 API_KEY_LEN = 32
 
@@ -38,7 +34,7 @@ class ForvoDownloader(AudioDownloader):
         self.file_extension = u'.ogg'
         self.path_code = 'pathogg'
         # Get the API key if the key is valid
-        api_key_file_path = str(Path(__file__).parents[1])
+        api_key_file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         api_key_file_path = os.path.join(api_key_file_path, KEY_FILE_NAME)
         api_key_file = open(api_key_file_path)
         self.api_key = api_key_file.read()

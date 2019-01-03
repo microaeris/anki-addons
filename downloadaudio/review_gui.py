@@ -32,6 +32,39 @@ from anki.sound import play, playFromText
 from download_entry import Action
 
 icons_dir = os.path.join(mw.pm.addonFolder(), 'downloadaudio', 'icons')
+FORVO_STR = 'forvo.com'
+# When downloading Japanese audio, set a preference for audio from
+# a user called `strawberrybrown`. She has uploaded 23k+ recordings
+# and speaks with a standard Japanese accent.
+PREFERRED_USERNAME = 'strawberrybrown'
+
+
+def auto_select_entry(note, retrieved_data):
+    print("these are the extras")
+    print(retrieved_data[0].extras)
+    print(retrieved_data)
+
+    sorted_entries = []
+    cur_idx = 0
+    for entry in retrieved_data:
+        # First check for Forvo and user `strawberrybrown`
+        if 'Source' in entry.extras.keys() and \
+           entry.extras['Source'].lower() == FORVO_STR:
+            if 'User' in entry.extras.keys() and \
+               PREFERRED_USERNAME in entry.extras['User']:
+                sorted_entries.insert(0, entry)
+                cur_idx += 1
+            else:
+                sorted_entries.insert(cur_idx, entry)
+                cur_idx += 1
+        else:
+            sorted_entries.append(entry)
+
+    for entry in sorted_entries:
+        entry.action = Action.Add if sorted_entries.index(entry) == 0 \
+            else Action.Delete
+
+    return sorted_entries
 
 
 def review_entries(note, retrieved_data, hide_text, no_manual_review=False):
@@ -45,7 +78,7 @@ def review_entries(note, retrieved_data, hide_text, no_manual_review=False):
     if not note or not retrieved_data:
         raise ValueError('Nothing downloaded')
     if no_manual_review:
-        review_files = None # FIXME
+        return auto_select_entry(note, retrieved_data)
     else:
         review_files = ReviewFiles(note, retrieved_data, hide_text)
     if not review_files.exec_():

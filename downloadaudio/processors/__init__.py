@@ -10,11 +10,18 @@ One just moves files and isn’t used. The other does simple audio
 processing and nmoves the files.
 """
 
+from sys import path
+from os.path import dirname
+path.append('/usr/local/lib/python2.7/dist-packages/') # Hack, but append anki's python path to find locally installed pydub
+path.append(dirname(__file__))
+
 try:
     from pydub.silence import detect_nonsilent
     # Look for a reasonable new pydub
-except ImportError:
+except ImportError as e:
+    # import pdb; pdb.set_trace()
     processor = None
 else:
+    import pdb; pdb.set_trace()
     from audio_processor import AudioProcessor
     processor = AudioProcessor()

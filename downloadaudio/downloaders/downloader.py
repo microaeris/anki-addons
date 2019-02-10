@@ -194,7 +194,7 @@ class AudioDownloader(object):
         """
         Return data loaded from an URL, as BeautifulSoup(3) object.
 
-        Wrapper helper function aronud self.get_data_from_url()
+        Wrapper helper function around self.get_data_from_url()
         """
         return soup(self.get_data_from_url(url_in), 'html.parser')
 

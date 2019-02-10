@@ -33,32 +33,25 @@ from download_entry import Action
 
 icons_dir = os.path.join(mw.pm.addonFolder(), 'downloadaudio', 'icons')
 FORVO_STR = 'forvo.com'
-# When downloading Japanese audio, set a preference for audio from
-# a user called `strawberrybrown`. She has uploaded 23k+ recordings
-# and speaks with a standard Japanese accent.
-PREFERRED_USERNAME = 'strawberrybrown'
 
 
 def auto_select_entry(note, retrieved_data):
     sorted_entries = []
     cur_idx = 0
     for entry in retrieved_data:
-        # First check for Forvo and user `strawberrybrown`
+        # First check for Forvo
         if 'Source' in entry.extras.keys() and \
            entry.extras['Source'].lower() == FORVO_STR:
-            if 'User' in entry.extras.keys() and \
-               PREFERRED_USERNAME in entry.extras['User']:
-                sorted_entries.insert(0, entry)
-                cur_idx += 1
-            else:
-                sorted_entries.insert(cur_idx, entry)
-                cur_idx += 1
+            sorted_entries.insert(cur_idx, entry)
+            cur_idx += 1
         else:
             sorted_entries.append(entry)
 
     for entry in sorted_entries:
-        entry.action = Action.Add if sorted_entries.index(entry) == 0 \
-            else Action.Delete
+        if sorted_entries.index(entry) == 0:
+            entry.action = Action.Add
+        else:
+            Action.Delete
 
     return sorted_entries
 

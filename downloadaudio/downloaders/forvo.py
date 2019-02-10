@@ -22,19 +22,25 @@ from download_entry import DownloadEntry
 from downloader import AudioDownloader
 
 
+# When downloading Japanese audio, set a preference for audio from
+# a user called `strawberrybrown`. She has uploaded 23k+ recordings
+# and speaks with a standard Japanese accent.
+PREFERRED_USERNAME = 'strawberrybrown'
 KEY_FILE_NAME = 'forvokey.py'
 API_KEY_LEN = 32
 
 
 class ForvoDownloader(AudioDownloader):
     """Download audio from Forvo"""
+
     def __init__(self):
         AudioDownloader.__init__(self)
         # Keep these two in sync
         self.file_extension = u'.ogg'
         self.path_code = 'pathogg'
         # Get the API key if the key is valid
-        api_key_file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        api_key_file_path = os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))
         api_key_file_path = os.path.join(api_key_file_path, KEY_FILE_NAME)
         api_key_file = open(api_key_file_path)
         self.api_key = api_key_file.read()
@@ -42,7 +48,7 @@ class ForvoDownloader(AudioDownloader):
         api_key_file.close()
         # Build the query URL
         self.url = 'http://apifree.forvo.com/action/word-pronunciations/' \
-            'format/json/order/rate-desc/limit/3/' \
+            'format/json/order/rate-desc/limit/1/' \
             'key/%s/word/' % (self.api_key)
         self.icon_url = 'http://www.forvo.com/'
         self.gender_dict = {'f': u'♀', 'm': u'♂'}
@@ -66,14 +72,24 @@ class ForvoDownloader(AudioDownloader):
             return
         self.downloads_list = []
         self.field_data = field_data
-        if field_data.split:
-            return
-        if not field_data.word:
+        # if field_data.split:
+        #     return
+        if not field_data.kanji or not field_data.word:
             return
         self.maybe_get_icon()
-        # Caveat! The old code used json.load(response) with a
-        # file-like object.  now we ues json.loads(get_data()) with a
+
+        # First query for preferred user's reading
+        # Caveat! The old code used Json.load(response) with a
+        # file-like object.  now we use Json.loads(get_data()) with a
         # string. Don't confuse load() with loads()!
+        reply_dict = json.loads(self.get_data_from_url(
+                                self.query_url(PREFERRED_USERNAME)))
+        if reply_dict['attributes']['total'] != 0:
+            # Found reading from preferred user.
+            self.get_items(reply_dict['items'])
+            return
+
+        # If not available, grab the top rating reading from Forvo.
         reply_dict = json.loads(self.get_data_from_url(self.query_url()))
         self.get_items(reply_dict['items'])
 
@@ -109,9 +125,11 @@ class ForvoDownloader(AudioDownloader):
             self.downloads_list.append(entry)
         # No clean-up
 
-    def query_url(self):
-        built_url = self.url + urllib.parse.quote(
-            self.field_data.word.encode('utf-8'))
+    def query_url(self, preferred_username=None):
+        term = self.field_data.kanji if self.field_data.kanji else self.field_data.word
+        built_url = self.url + urllib.parse.quote(term.encode('utf-8'))
         if self.language:
             built_url += '/language/' + self.language
+        if preferred_username is not None:
+            built_url += '/username/' + preferred_username
         return built_url + '/'

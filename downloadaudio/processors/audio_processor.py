@@ -19,7 +19,7 @@ load_functions = {
     'mp3': AudioSegment.from_mp3, 'ogg': AudioSegment.from_ogg,
     'wav': AudioSegment.from_wav}
 
-output_format = 'flac'
+output_format = 'mp3'
 output_suffix = '.' + output_format
 silence_threshold = -30
 # Use lower values like -40, -50 when stuff gets cut off
@@ -48,6 +48,9 @@ class AudioProcessor(object):
         Take the audio file pointed to by dl_entry, normalize, remove silence,
         convert to output_format.
         """
+
+        print("In the processor")
+
         input_format = dl_entry.file_extension.lstrip('.')
         try:
             loader = load_functions[input_format]

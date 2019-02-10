@@ -66,7 +66,9 @@ class JapaneseFieldData(FieldData):
         Remove any symbols such as `~` and remove everything in parenthesis,
         and finally, remove anything alphabetical.
         '''
-        self.word = self.word.replace('~', '')
+        bad_chars = ['…', '~', '〜']
+        for char in bad_chars:
+            self.word = self.word.replace(char, '')
 
         # Sick regex bro. What does it do?
         # Selects for characters in parenthesis and remove it.

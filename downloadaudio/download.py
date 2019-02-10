@@ -47,7 +47,7 @@ from language import language_code_from_card, language_code_from_editor
 from review_gui import review_entries
 from update_gui import update_data
 
-import batch_download_gui   # should be able to delete this
+import batch_download_gui
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QMenu
@@ -55,7 +55,7 @@ from PyQt5.QtWidgets import QAction, QMenu
 DOWNLOAD_NOTE_SHORTCUT = "q"
 DOWNLOAD_SIDE_SHORTCUT = "t"
 DOWNLOAD_MANUAL_SHORTCUT = "Ctrl+t"
-DOWNLOAD_BATCH_SHORTCUT = "Ctrl+q"  # WIP
+DOWNLOAD_BATCH_SHORTCUT = "Ctrl+q"
 
 # Place were we keep our megaphone icon.
 icons_dir = os.path.join(mw.pm.addonFolder(), 'downloadaudio', 'icons')
@@ -66,17 +66,28 @@ def do_batch_download(note_ids, browser):
     mw.checkpoint("batch edit")
     mw.progress.start()
     browser.model.beginReset()
+    downloaded_count = 0
     for note_id in note_ids:
         note = mw.col.getNote(note_id)
-        download_for_note(ask_user=False, note=note, no_manual_review=True)
+        retrieved_entries = download_for_note(ask_user=False,
+                                              note=note,
+                                              no_manual_review=True)
+        if any(entry.action == Action.Add for entry in retrieved_entries):
+            downloaded_count += 1
+            print("Finished %d out of %d" % (downloaded_count, len(note_ids)))
     browser.model.endReset()
     mw.requireReset()
     mw.progress.finish()
     mw.reset()
-    tooltip("<b>Updated</b> {0} notes.".format(len(note_ids)), parent=browser)
+    tooltip("<b>Updated</b> {0} notes.".format(downloaded_count),
+            parent=browser)
 
 
-def do_download(note, field_data_list, language, hide_text=False, no_manual_review=False):
+def do_download(note,
+                field_data_list,
+                language,
+                hide_text=False,
+                no_manual_review=False):
     """
     Download audio data.
 
@@ -103,13 +114,18 @@ def do_download(note, field_data_list, language, hide_text=False, no_manual_revi
                 # raise
                 continue
             retrieved_entries += dloader.downloads_list
+
     # Significantly changed the logic. Put all entries in one
     # list, do stuff with that list of DownloadEntries.
     for entry in retrieved_entries:
         # Do the processing before the reviewing now.
         entry.process()
+
     try:
-        retrieved_entries = review_entries(note, retrieved_entries, hide_text, no_manual_review)
+        retrieved_entries = review_entries(note,
+                                           retrieved_entries,
+                                           hide_text,
+                                           no_manual_review)
         # Now just the dialog, which sets the fields in the entries
     except ValueError as ve:
         tooltip(str(ve))
@@ -119,8 +135,10 @@ def do_download(note, field_data_list, language, hide_text=False, no_manual_revi
                 entry.action = Action.Delete
         else:
             raise
+
     for entry in retrieved_entries:
         entry.dispatch(note)
+
     if any(entry.action == Action.Add for entry in retrieved_entries):
         note.flush()
 
@@ -133,12 +151,14 @@ def do_download(note, field_data_list, language, hide_text=False, no_manual_revi
         except AttributeError:
             # Could not get the note of the reviewer's card. Probably
             # not reviewing at all.
-            return
+            return retrieved_entries
+
         if note == rnote:
             # The note we have is the one we were reviewing, so,
             # reload and replay
             mw.reviewer.card.load()
             mw.reviewer.replayAudio()
+    return retrieved_entries
 
 
 def download_for_side():
@@ -157,7 +177,10 @@ def download_for_side():
         note, field_data, language_code_from_card(card), hide_text=True)
 
 
-def download_for_note(ask_user=False, note=None, editor=None, no_manual_review=False):
+def download_for_note(ask_user=False,
+                      note=None,
+                      editor=None,
+                      no_manual_review=False):
     """
     Download audio for all fields.
 
@@ -191,7 +214,7 @@ def download_for_note(ask_user=False, note=None, editor=None, no_manual_review=F
             else:
                 # Don't know how to handle this after all
                 raise
-    do_download(note, field_data, language_code, hide_text=False, no_manual_review=no_manual_review)
+    return do_download(note, field_data, language_code, hide_text=False, no_manual_review=no_manual_review)
 
 
 def download_manual():

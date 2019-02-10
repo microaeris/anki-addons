@@ -17,6 +17,7 @@ if processor:
     # See processors/__init__.py. We try the import there. If we have
     # a processor, this import should work.
 
+
 class DownloadEntry(object):
     u"""Data about a single file downloaded by a downloader"""
     def __init__(self, field_data, file_path, extras, icon):
@@ -67,6 +68,7 @@ class DownloadEntry(object):
                 self.file_path = new_fp
                 self.file_extension = new_sffx
 
+
     def dispatch(self, note):
         u"""Do what should be done with the downloaded file
 
@@ -80,7 +82,7 @@ class DownloadEntry(object):
         if self.action == Action.Add or self.action == Action.Keep:
             media_fn = unmunge_to_mediafile(self)
             if self.action == Action.Add:
-                note[self.audio_field_name] += '[sound:' + media_fn + ']'
+                note[self.audio_field_name] = '[sound:' + media_fn + ']'
         if self.action == Action.Delete or self.action == Action.Blacklist:
             os.remove(self.file_path)
         if self.action == Action.Blacklist:

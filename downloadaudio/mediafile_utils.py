@@ -32,7 +32,7 @@ def free_media_name(base, end):
     """
     base = stripHTML(base)
     # Strip the ‘invalidFilenameChars’ by hand.
-    base = re.sub(r'[\\/:\*?\'"<>\|]', '', base)
+    base = re.sub(r'[\\/:\*?\'"<>\|\[\]]', '', base)
     base = unicodedata.normalize('NFC', base)
     # Looks like the normalization issue has finally been
     # solved. Always use NFC versions of file names now.
@@ -80,5 +80,7 @@ def unmunge_to_mediafile(dl_entry):
     """
     media_path, media_file_name = free_media_name(
         dl_entry.base_name, dl_entry.file_extension)
+    print(media_path)
+    print(media_file_name)
     shutil.move(dl_entry.file_path, media_path)
     return media_file_name

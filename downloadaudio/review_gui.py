@@ -48,10 +48,8 @@ def auto_select_entry(note, retrieved_data):
             sorted_entries.append(entry)
 
     for entry in sorted_entries:
-        if sorted_entries.index(entry) == 0:
-            entry.action = Action.Add
-        else:
-            Action.Delete
+        entry.action = Action.Add if sorted_entries.index(entry) == 0 \
+            else Action.Delete
 
     return sorted_entries
 

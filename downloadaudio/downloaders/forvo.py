@@ -84,6 +84,7 @@ class ForvoDownloader(AudioDownloader):
         # string. Don't confuse load() with loads()!
         reply_dict = json.loads(self.get_data_from_url(
                                 self.query_url(PREFERRED_USERNAME)))
+        print(reply_dict)
         if reply_dict['attributes']['total'] != 0:
             # Found reading from preferred user.
             self.get_items(reply_dict['items'])
@@ -132,4 +133,5 @@ class ForvoDownloader(AudioDownloader):
             built_url += '/language/' + self.language
         if preferred_username is not None:
             built_url += '/username/' + preferred_username
+        print(built_url)
         return built_url + '/'

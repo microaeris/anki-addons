@@ -19,9 +19,7 @@ try:
     from pydub.silence import detect_nonsilent
     # Look for a reasonable new pydub
 except ImportError as e:
-    # import pdb; pdb.set_trace()
     processor = None
 else:
-    import pdb; pdb.set_trace()
     from audio_processor import AudioProcessor
     processor = AudioProcessor()

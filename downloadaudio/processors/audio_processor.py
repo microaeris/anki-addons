@@ -57,24 +57,27 @@ class AudioProcessor(object):
         except KeyError:
             loader = lambda file: AudioSegment.from_file(
                 file=file, format=input_format)
+
         segment = loader(dl_entry.file_path) # This
         # sometimes raised a pydub.exceptions.CouldntDecodeError
-        segment = segment.normalize()  # First normalize
-        # Try to remove silence
-        loud_pos = detect_nonsilent(
-            segment, min_silence_len=minimum_silence_length,
-            silence_thresh=silence_threshold)
-        fade_in_length = rapid_fade_length
-        fade_out_length = rapid_fade_length
-        if len(loud_pos) == 1:
-            loud_p = loud_pos[0]
-            if loud_p[0] > silence_fade_length:
-                fade_in_length = silence_fade_length
-            if loud_p[1] < len(segment) - silence_fade_length:
-                fade_out_length = silence_fade_length
-            if loud_p[0] > 0 or loud_p[1] < len(segment):
-                segment = segment[loud_p[0] : loud_p[1]]
-        segment = segment.fade_in(fade_in_length).fade_out(fade_out_length)
+
+        # segment = segment.normalize()  # First normalize
+        # # Try to remove silence
+        # loud_pos = detect_nonsilent(
+        #     segment, min_silence_len=minimum_silence_length,
+        #     silence_thresh=silence_threshold)
+        # fade_in_length = rapid_fade_length
+        # fade_out_length = rapid_fade_length
+        # if len(loud_pos) == 1:
+        #     loud_p = loud_pos[0]
+        #     if loud_p[0] > silence_fade_length:
+        #         fade_in_length = silence_fade_length
+        #     if loud_p[1] < len(segment) - silence_fade_length:
+        #         fade_out_length = silence_fade_length
+        #     if loud_p[0] > 0 or loud_p[1] < len(segment):
+        #         segment = segment[loud_p[0] : loud_p[1]]
+        # segment = segment.fade_in(fade_in_length).fade_out(fade_out_length)
+
         # Now write
         tof = tempfile.NamedTemporaryFile(
             delete=False, suffix=output_suffix, prefix=u'anki_audio_')
